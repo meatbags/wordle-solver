@@ -55,7 +55,7 @@ class Wordle:
             remain = len(words)
             if remain > 1:
                 print('potential words ({}): {}\n'.format(remain, ' '.join([w.upper() for w in words])))
-                self.suggestWords(words)
+                self.suggestWords(words, filter)
                 guess += 1
             elif remain == 0:
                 print('word not found\n')
@@ -118,24 +118,28 @@ class Wordle:
         items.sort(key=lambda x:x[1])
         return [item[0] for item in items]
 
-    def suggestWords(self, sortedWords=False):
-        n = 15
+    def suggestWords(self, sortedWords=False, filter=False):
+        n = 10
         words = sortedWords
         if not words:
             words = [w for w in self.words]
         filter0 = ['s']
         filter1 = self.letter_most_common[:1] + ['s']
         filter2 = self.letter_most_common[:2] + ['s']
-        filter3 = self.letter_most_common[:3] + ['s']
         words0 = self.filterExcludes(words, filter0)
         words1 = self.filterExcludes(words, filter1)
         words2 = self.filterExcludes(words, filter2)
-        words3 = self.filterExcludes(words, filter3)
-        print('Best brute-force words:', ' '.join([words[i].upper() for i in range(min(n, len(words)))]))
-        print('Without {}:'.format(''.join(filter0).upper()), ' '.join([words0[i].upper() for i in range(min(n, len(words0)))]))
-        print('Without {}:'.format(''.join(filter1).upper()), ' '.join([words1[i].upper() for i in range(min(n, len(words1)))]))
-        print('Without {}:'.format(''.join(filter2).upper()), ' '.join([words2[i].upper() for i in range(min(n, len(words2)))]))
-        print('Without {}:'.format(''.join(filter3).upper()), ' '.join([words3[i].upper() for i in range(min(n, len(words3)))]))
+        print('Best performance:', ' '.join([words[i].upper() for i in range(min(n, len(words)))]))
+        if len(words0):
+            print(' '.join([words0[i].upper() for i in range(min(n, len(words0)))]), '-{}:'.format(''.join(filter0).upper()))
+        if len(words1):
+            print(' '.join([words1[i].upper() for i in range(min(n, len(words1)))]), '-{}:'.format(''.join(filter1).upper()))
+        if len(words2):
+            print(' '.join([words2[i].upper() for i in range(min(n, len(words2)))]), '-{}:'.format(''.join(filter2).upper()))
+        if filter:
+            words = self.filterExcludes(self.words, filter.includesLetters + filter.excludesLetters)
+            lim = min(n, len(words))
+            print('Most information:', ' '.join([words[i].upper() for i in range(lim)]));
         print()
 
     def selectWord(self, words, filter):
